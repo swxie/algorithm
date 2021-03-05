@@ -31,17 +31,16 @@ public:
         //计算pattern的哈希值
         unsigned int pattern_hash = 0;
         unsigned int high_hash = 1;
+        unsigned int mod = INT32_MAX / 2;
         for (int i = 0; i < pattern.size(); i++){
-            pattern_hash *= 256;
-            pattern_hash += pattern[i];
+            pattern_hash = (pattern_hash * 256 + pattern[i]) % mod;
             if (i != 0)
-                high_hash = high_hash * 256;
+                high_hash = high_hash * 256 % mod;
         }
         //计算str的哈希值
         unsigned int str_hash = 0;
         for (int i = 0; i < pattern.size(); i++){
-            str_hash *= 256;
-            str_hash += str[i];
+            str_hash = (str_hash * 256 + str[i]) % mod;
         }
         int begin = 0;
         do
@@ -58,8 +57,10 @@ public:
                     return begin;
             }
             if (begin < str.size() - pattern.size()){                
-                str_hash -= str[begin] * high_hash;
-                str_hash = str_hash * 256 + str[begin + pattern.size()];
+                str_hash = str_hash - (str[begin] * high_hash) % mod;
+                if (str_hash < 0)
+                    str_hash += mod;
+                str_hash = (str_hash * 256 + str[begin + pattern.size()]) % mod;
             }
             begin++;
         } while (begin <= str.size() - pattern.size());
@@ -68,9 +69,10 @@ public:
     int KMPMatch(string str, string pattern){
         //构造转移矩阵
         vector<int> dp(pattern.size(), -1);
-        int index = 0;
-        int next = -1;
+        /*
+        int index = 1;
         while (index < pattern.size() - 1){
+            int next = dp[index - 1]
             if (next < 0 || pattern[index] == pattern[next]){
                 dp[++index] = ++next;
             }
@@ -78,16 +80,23 @@ public:
                 next = dp[next];
             }
         }
+        */
+        for (int index = 1; index < pattern.size(); index++){
+            int next = dp[index - 1];
+            while (next >= 0 && pattern[index] != pattern[next + 1])
+                next = dp[next];
+            dp[index] = next;
+        }
         //进行匹配
         int str_index = 0;
         int pattern_index = 0;
         while (str_index < str.length() && pattern_index < pattern.length()){
-            if (pattern_index < 0 || str[str_index] == pattern[pattern_index]){
-                str_index++;
-                pattern_index++;
+            if (pattern_index >= 0 && str[str_index] != pattern[pattern_index]){
+                pattern_index = dp[pattern_index];
             }
             else{
-                pattern_index = dp[pattern_index];
+                str_index++;
+                pattern_index++;
             }
         }
         if (pattern_index == pattern.length())
