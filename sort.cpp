@@ -2,6 +2,7 @@
 #include <iostream>
 #include <random>
 #include <time.h>
+#include <iterator>
 
 using namespace std;
 
@@ -70,8 +71,7 @@ public:
 //其他相关函数
     //打印函数
     void printVec(vector<int> &input){
-        for (int i = 0; i < input.size(); i++)
-            cout << input[i] << ' ';
+        copy(input.begin(), input.end(), ostream_iterator<int>(cout, " "));
         cout << endl;
     }
 private:

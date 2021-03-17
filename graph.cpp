@@ -105,10 +105,10 @@ int main(){
     graph graph;
     graph.build();
     vector<int> ans = graph.sort();
-    copy(ans.begin(), ans.end(), ostream_iterator<int>(cout));
+    copy(ans.begin(), ans.end(), ostream_iterator<int>(cout, " "));
     cout << endl;
     graph.transpose();
     ans = graph.sort();
-    copy(ans.begin(), ans.end(), ostream_iterator<int>(cout));
+    copy(ans.begin(), ans.end(), ostream_iterator<int>(cout, " "));
     cout << endl;
 }
